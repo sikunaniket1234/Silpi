@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Silpi transliteration engines.
 
 Two schemes are supported for converting keystrokes to Odia Unicode:
 
 * ``phonetic`` - type Roman text the way it sounds (``namaskaara`` ->
-  ନମସ୍କାର).  A pragmatic ITRANS-style scheme for Odia.
+  à¬¨à¬®à¬¸à­à¬•à¬¾à¬°).  A pragmatic ITRANS-style scheme for Odia.
 * ``akruti``   - the legacy Akruti touch-typing layout, backed by
   :mod:`silpi.akruti_map`.
 
@@ -52,7 +52,7 @@ _CONSONANTS = {
     "j": "\u0b1c", "jh": "\u0b1d", "~n": "\u0b1e", "n~": "\u0b1e",
     "T": "\u0b1f", "Th": "\u0b20", "D": "\u0b21", "Dh": "\u0b22", "N": "\u0b23",
     "t": "\u0b24", "th": "\u0b25", "d": "\u0b26", "dh": "\u0b27", "n": "\u0b28",
-    "p": "\u0b2a", "ph": "\u0b2b", "f": "\u0b2b", "b": "\u0b2c", "bh": "\u0b2d",
+    "p": "\u0b2a", "ph": "\u0b2b", "b": "\u0b2c", "bh": "\u0b2d",
     "m": "\u0b2e", "y": "\u0b5f", "Y": "\u0b2f", "r": "\u0b30", "l": "\u0b32",
     "L": "\u0b33", "v": "\u0b71", "w": "\u0b71", "sh": "\u0b36", "S": "\u0b36",
     "Sh": "\u0b37", "ssh": "\u0b37", "s": "\u0b38", "h": "\u0b39",
@@ -65,6 +65,10 @@ _SIGNS = {
     "M": "\u0b02", "nM": "\u0b02", "H": "\u0b03", "z": "\u0b03",
     "~": "\u0b01", ".N": "\u0b01", "^": "\u0b01",
     "'": "\u0b3d", "OM": "\u0b13\u0b02", "Aa": "\u0b06",
+    # Explicit halant / virama triggers:
+    # 'f' is the primary key (alphabetic, always buffered by the IME).
+    # '_' and '.h' also work when commit_punct is disabled.
+    "f": "\u0b4d", "_": "\u0b4d", ".h": "\u0b4d",
 }
 
 _ALL_TOKENS = {}
@@ -86,12 +90,16 @@ def _match(text: str, i: int):
 
 def phonetic(text: str) -> str:
     """Transliterate Roman (ITRANS-ish) text to Odia Unicode.
-    
+
     In Odia orthography, consonants carry an inherent 'a' vowel unless
     followed by another vowel, a conjunct consonant, or an explicit halant/virama.
-    Trailing consonants retain their inherent vowel (e.g. 'bharat' -> ଭରତ,
-    'namaskar' -> ନମସ୍କାର, 'jagannath' -> ଜଗନ୍ନାଥ).
-    Explicit virama can still be produced by typing '_' or 'f' or '.h'.
+    Trailing consonants retain their inherent vowel (e.g. 'bharat' -> à¬­à¬°à¬¤,
+    'namaskar' -> à¬¨à¬®à¬¸à­à¬•à¬¾à¬°, 'jagannath' -> à¬œà¬—à¬¨à­à¬¨à¬¾à¬¥).
+
+    Explicit virama (halanta à­) can be produced by typing:
+      'f'  â€” primary key (e.g. ``aniketf`` â†’ à¬…à¬¨à¬¿à¬•à­‡à¬¤à­)
+      '_'  â€” underscore   (e.g. ``aniket_`` â†’ à¬…à¬¨à¬¿à¬•à­‡à¬¤à­)
+      '.h' â€” dot-h pair   (e.g. ``aniket.h`` â†’ à¬…à¬¨à¬¿à¬•à­‡à¬¤à­)
     """
     out = []
     i = 0
@@ -126,7 +134,9 @@ def phonetic(text: str) -> str:
                 out.append(node)
         else:  # sign / symbol
             out.append(node)
-            # a trailing sign does not consume or kill the inherent vowel
+            # An explicit virama token suppresses the inherent 'a' vowel of
+            # the preceding consonant.  All other signs (anusvara, visarga â€¦)
+            # likewise mark the syllable as closed.
             if pending_consonant:
                 pending_consonant = False
     # If the word ended on a consonant, Odia retains inherent 'a' vowel by default (NO trailing virama)
@@ -152,3 +162,4 @@ def describe(scheme: str) -> str:
                 "\u2026), modelled after the classic Akruti phonetic layout.")
     return ("Phonetic: type Roman as it sounds  (a aa i ii u uu e ai o au, "
             "k kh g gh ... / M = anusvara, H = visarga, ~ = chandrabindu).")
+

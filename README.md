@@ -39,7 +39,8 @@
 ## 💻 System Requirements
 
 - **Operating System**: Windows 7, Windows 8, Windows 8.1, Windows 10, Windows 11 (32-bit & 64-bit).
-- **Runtime**: Python 3.8+ (Uses only standard library modules `ctypes`, `tkinter`, `json`, `queue`, `threading` — **no external dependencies required!**).
+- **Runtime**: Python 3.8+ — **`Silpi.bat` auto-detects and installs Python for you** if it is not already present (uses `winget` on Windows 10/11; opens the download page on older systems). No manual setup needed.
+- **External Dependencies**: None — uses only Python standard library (`ctypes`, `tkinter`, `json`, `queue`, `threading`).
 - **Applications Supported**: MS Office (2003 through 2024 / Office 365), Notepad, Chrome, Edge, Firefox, Adobe InDesign, Photoshop, WordPad, etc.
 
 ---
@@ -48,11 +49,18 @@
 
 ### 1. Launching Silpi
 
-Simply run the batch launcher:
+Simply **double-click `Silpi.bat`** — that's it!
+
+The launcher automatically:
+1. ✅ **Checks** if Python 3.8+ is installed.
+2. ⬇️ **Downloads and installs** Python via `winget` (Windows 10/11) if not found.
+3. 🚀 **Starts** Silpi silently in the background.
+
+Alternatively, launch directly:
 ```bat
 Silpi.bat
 ```
-Or launch silently in the background:
+Or as a background (no terminal window) process:
 ```bash
 py run_silpi.pyw
 ```
@@ -92,6 +100,18 @@ When you start typing, a candidate box floats right under your cursor:
 - Press **`Space`** or **`Enter`** to accept candidate **1**.
 - Press **`1`**, **`2`**, **`3`**, **`4`**, or **`5`** to pick that specific candidate.
 - Press **`Esc`** to cancel suggestions and type plain Roman text.
+
+#### Explicit Halant / Virama (୍):
+By default, trailing consonants keep their inherent *a* vowel (`bharat` → **ଭରତ**).
+To force a trailing virama (e.g. for names or Sanskrit words), use any of:
+
+| Key | Example input | Result |
+| :---: | :---: | :---: |
+| **`f`** *(recommended)* | `aniketf` + Space | **ଅନିକେତ୍** |
+| **`_`** (underscore) | `aniket_` + Space | **ଅନିକେତ୍** |
+| **`.h`** (dot-h) | `aniket.h` + Space | **ଅନିକେତ୍** |
+
+> **Note**: In Akruti mode the `f` key always directly types **`୍`** (halanta).
 
 ---
 
